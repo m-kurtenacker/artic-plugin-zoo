@@ -1,0 +1,1 @@
+cmake .. -DThorin_DIR=/home/kurtenacker/anydsl/thorin/build/share/anydsl/cmake
