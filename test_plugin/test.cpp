@@ -3,10 +3,14 @@
 #include "thorin/world.h"
 #include "thorin/primop.h"
 
+using namespace thorin;
+
 void * test_cpp (void * input) {
-    int * testp = (int*)input;
-    return testp;
+    //Closure * testclosure = (thorin::Closure *)input;
+    //return testclosure;
+    return input;
 }
+
 
 extern "C" {
 

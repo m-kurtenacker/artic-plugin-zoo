@@ -1,7 +1,7 @@
 #[import(cc = "plugin", name = "test")] fn test (_: fn () -> ()) -> (fn() -> ());
 //#[import(cc = "C", name = "test")] fn test (_: fn () -> ()) -> (fn() -> ());
 
-#[import(cc = "C", name = "anydsl_print_f64")] fn print_f64(_: f64) -> ();
+#[import(cc = "C", name = "print_f64")] fn print_f64(_: f64) -> ();
 
 #[export]
 fn main () -> () {
