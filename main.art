@@ -7,6 +7,9 @@
 fn main () -> () {
 
     test(@|| { print_f64(13); })();
+    test(@|| { print_f64(13); })();
     test(@|| { print_f64(27); })();
+
+    print_f64(27);
 
 }
