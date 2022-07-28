@@ -3,12 +3,19 @@
 
 #[import(cc = "C", name = "print_f64")] fn print_f64(_: f64) -> ();
 
+#[import(cc = "plugin", name = "test_b")] fn test_b (_: fn () -> (), _: f64) -> (fn() -> ());
+#[import(cc = "plugin", name = "test_c")] fn test_c (_: fn () -> ()) -> (fn() -> ());
+
 #[export]
 fn main () -> () {
 
     test(@|| { print_f64(13); })();
-    test(@|| { print_f64(13); })();
-    test(@|| { print_f64(27); })();
+
+    test_b(@|| { print_f64(13); }, 12.0)();
+    test_b(@|| { print_f64(27); }, 13.0)();
+
+    test_c(@|| { print_f64(27); })();
+    test_c(@|| { print_f64(27); })();
 
     print_f64(27);
 

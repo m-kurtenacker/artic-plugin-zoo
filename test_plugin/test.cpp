@@ -6,14 +6,14 @@
 
 using namespace thorin;
 
-void replace_numbers(Def * input);
-void replace_numbers(Continuation * input);
+void replace_numbers(Def * input, double target);
+void replace_numbers(Continuation * input, double target);
 
-void replace_numbers(Def * input) {
+void replace_numbers(Def * input, double target) {
     World& world = input->world();
 
     if (auto cont = input->isa<Continuation>())
-        return replace_numbers(cont);
+        return replace_numbers(cont, target);
 
     if (auto param = input->isa<Param>())
         return;
@@ -23,17 +23,17 @@ void replace_numbers(Def * input) {
 
         if (auto lit = op->isa<PrimLit>()) {
             if (lit->primtype_tag() == PrimType_qf64) {
-                auto new_lit = world.literal_qf64(42, {});
+                auto new_lit = world.literal_qf64(target, {});
                 input->unset_op(i);
                 input->set_op(i, new_lit);
             }
         } else {
-            replace_numbers(const_cast<Def*>(op));
+            replace_numbers(const_cast<Def*>(op), target);
         }
     }
 }
 
-void replace_numbers(Continuation * input) {
+void replace_numbers(Continuation * input, double target) {
     World& world = input->world();
 
     if (!input->has_body())
@@ -41,25 +41,42 @@ void replace_numbers(Continuation * input) {
 
     App* app = const_cast<App*>(input->body());
 
-    replace_numbers(const_cast<Continuation*>(app->callee()->as<Continuation>()));
+    replace_numbers(const_cast<Continuation*>(app->callee()->as<Continuation>()), target);
     for (size_t i = 0, e = app->num_args(); i < e; i++) {
         auto arg = app->arg(i);
 
         if (auto lit = arg->isa<PrimLit>()) {
             if (lit->primtype_tag() == PrimType_qf64) {
-                auto new_lit = world.literal_qf64(42, {});
+                auto new_lit = world.literal_qf64(target, {});
                 app->unset_op(i + 1);
                 app->set_op(i + 1, new_lit);
             }
         } else {
-            replace_numbers(const_cast<Def*>(arg));
+            replace_numbers(const_cast<Def*>(arg), target);
         }
     }
 }
 
 void * test_cpp (void * input) {
     Continuation * test = (Continuation *)input;
-    replace_numbers(test);
+    replace_numbers(test, 42);
+    return input;
+}
+
+void * test_b_cpp (void * input, void * number) {
+    Continuation * test = (Continuation *)input;
+    PrimLit * lit = (PrimLit*)number;
+    double value = lit->value().get_f64();
+    replace_numbers(test, value);
+    return input;
+}
+
+static double num_replacements;
+
+void * test_c_cpp (void * input) {
+    Continuation * test = (Continuation *)input;
+    replace_numbers(test, num_replacements);
+    num_replacements += 1;
     return input;
 }
 
@@ -68,12 +85,25 @@ extern "C" {
 
 void init(void) {
     fprintf(stdout, "Hallo Welt!\n");
+    num_replacements = 0;
 }
 
-void * test(void * input) {
+void * test(size_t input_c, void ** input_v) {
     fprintf(stdout, "Plugin executed!\n");
-    return test_cpp(input);
+    assert(input_c == 1);
+    return test_cpp(input_v[0]);
+}
+
+void * test_b(size_t input_c, void ** input_v) {
+    fprintf(stdout, "Plugin executed!\n");
+    assert(input_c == 2);
+    return test_b_cpp(input_v[0], input_v[1]);
+}
+
+void * test_c(size_t input_c, void ** input_v) {
+    fprintf(stdout, "Plugin executed!\n");
+    assert(input_c == 1);
+    return test_c_cpp(input_v[0]);
 }
 
 }
-
