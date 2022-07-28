@@ -1,1 +1,1 @@
-cmake .. -DThorin_DIR=/home/kurtenacker/anydsl/thorin/build/share/anydsl/cmake
+cmake .. -DThorin_DIR=/home/matthiask/Documents/anydsl/thorin/build/share/anydsl/cmake
