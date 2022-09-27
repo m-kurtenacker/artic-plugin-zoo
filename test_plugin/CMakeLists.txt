@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4 FATAL_ERROR)
 
-project (test CXX)
+project (test)
 
 find_package(Thorin REQUIRED)
 
