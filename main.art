@@ -1,10 +1,8 @@
 #[import(cc = "plugin", name = "test")] fn test (_: fn () -> ()) -> (fn() -> ());
-//#[import(cc = "C", name = "test")] fn test (_: fn () -> ()) -> (fn() -> ());
-
-#[import(cc = "C", name = "print_f64")] fn print_f64(_: f64) -> ();
-
 #[import(cc = "plugin", name = "test_b")] fn test_b (_: fn () -> (), _: f64) -> (fn() -> ());
 #[import(cc = "plugin", name = "test_c")] fn test_c (_: fn () -> ()) -> (fn() -> ());
+
+#[import(cc = "C", name = "print_f64")] fn print_f64(_: f64) -> ();
 
 #[export]
 fn main () -> () {
@@ -18,5 +16,9 @@ fn main () -> () {
     test_c(@|| { print_f64(27); })();
 
     print_f64(27);
+
+    let mut a = 9.0;
+    test(@|| { a = 23; })();
+    print_f64(a);
 
 }

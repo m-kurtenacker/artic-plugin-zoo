@@ -41,7 +41,8 @@ void replace_numbers(Continuation * input, double target) {
 
     App* app = const_cast<App*>(input->body());
 
-    replace_numbers(const_cast<Continuation*>(app->callee()->as<Continuation>()), target);
+    if (app->callee()->isa<Continuation>())
+        replace_numbers(const_cast<Continuation*>(app->callee()->as<Continuation>()), target);
     for (size_t i = 0, e = app->num_args(); i < e; i++) {
         auto arg = app->arg(i);
 
