@@ -5,7 +5,7 @@
 #[import(cc = "C", name = "print_f64")] fn print_f64(_: f64) -> ();
 
 #[export]
-fn main () -> () {
+fn main () -> i32 {
 
     test(@|| { print_f64(13); })();
 
@@ -21,4 +21,5 @@ fn main () -> () {
     test(@|| { a = 23; })();
     print_f64(a);
 
+    if a == 42 { 0 } else { 1 }
 }
