@@ -81,6 +81,21 @@ void * test_c_cpp (void * input) {
     return input;
 }
 
+void * test_d_cpp (void * input) {
+    const Def* test = (Def*) input;
+    World& world = test->world();
+
+    test = world.arithop(ArithOp_add, test, world.literal_qf64(1.0, {}));
+
+    Continuation *a = world.continuation(
+            world.fn_type({
+                world.mem_type(),
+                world.fn_type({world.mem_type(), world.type_qf64()})
+            }));
+    a->jump(a->param(1), {a->param(0), test});
+    return a;
+}
+
 
 extern "C" {
 
@@ -105,6 +120,12 @@ void * test_c(size_t input_c, void ** input_v) {
     fprintf(stdout, "Plugin executed!\n");
     assert(input_c == 1);
     return test_c_cpp(input_v[0]);
+}
+
+void * test_d(size_t input_c, void ** input_v) {
+    fprintf(stdout, "Plugin executed!\n");
+    assert(input_c == 1);
+    return test_d_cpp(input_v[0]);
 }
 
 }
