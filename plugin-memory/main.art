@@ -1,0 +1,25 @@
+#[import(cc = "plugin", name = "static_alloca")] fn static_alloca(_size : i64) -> (fn() -> &mut [u8]);
+#[import(cc = "plugin", name = "static_release", depends = static_alloca)] fn static_release(&mut [u8]) -> (fn() -> ());
+
+fn @test(arg: &[u8], c : i32) {
+    let buffer = static_alloca(sizeof[u8]() * (c + 2) as i64)();
+
+    for i in unroll(0, c) {
+        buffer(i) = arg(i);
+    }
+
+    buffer(c) = '\n';
+    buffer(c + 1) = 0;
+
+    print_string(buffer);
+
+    static_release(buffer)();
+}
+
+#[export]
+fn main (argc : i32, argv : &[&[u8]]) -> () {
+    test(argv(0), 2);
+    test(argv(0), 3);
+    test(argv(0), 4);
+    test(argv(0), argc);
+}
