@@ -4,6 +4,8 @@
 #include <thorin/analyses/cfg.h>
 #include <thorin/analyses/scope.h>
 
+#include <thorin/transform/partial_evaluation.h>
+
 using namespace thorin;
 
 void replace_numbers(Def * input, double target);
@@ -96,6 +98,41 @@ void * test_d_cpp (void * input) {
     return a;
 }
 
+void * test_inner_cpp (void * input) {
+    const Def* test = (Def*)input;
+    //World& world = test->world();
+    //world.dump();
+
+    std::cerr << "Analyzing ";
+    test->dump();
+    assert(test->isa<Continuation>());
+
+    Continuation * cont = (Continuation *)input;
+    replace_numbers(cont, 24);
+    return input;
+}
+
+void * test_outer_cpp (void * input) {
+    const Def* test = (Def*)input;
+    //World& world = test->world();
+    //world.dump();
+
+    std::cerr << "Analyzing ";
+    test->dump();
+    assert(test->isa<Continuation>());
+
+    Continuation * cont = (Continuation *)input;
+    replace_numbers(cont, 42);
+    return input;
+}
+
+void * test_pe_cpp (void * input) {
+    const Def* test = (Def*) input;
+    World& world = test->world();
+    while (partial_evaluation(world, false)) {};
+
+    return input;
+}
 
 extern "C" {
 
@@ -126,6 +163,24 @@ void * test_d(size_t input_c, void ** input_v) {
     fprintf(stdout, "Plugin executed!\n");
     assert(input_c == 1);
     return test_d_cpp(input_v[0]);
+}
+
+void * test_inner(size_t input_c, void ** input_v) {
+    fprintf(stdout, "Inner Plugin executed!\n");
+    assert(input_c == 1);
+    return test_inner_cpp(input_v[0]);
+}
+
+void * test_outer(size_t input_c, void ** input_v) {
+    fprintf(stdout, "Outer Plugin executed!\n");
+    assert(input_c == 1);
+    return test_outer_cpp(input_v[0]);
+}
+
+void * test_pe(size_t input_c, void ** input_v) {
+    fprintf(stdout, "PE executed!\n");
+    assert(input_c == 1);
+    return test_pe_cpp(input_v[0]);
 }
 
 }
