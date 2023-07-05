@@ -5,8 +5,8 @@
 fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
     let token = generate_token(|| { 0 });
 
-    for i in unroll(0, 2) {
-        wrap_token(token, @|x| { x + 1 });
+    for i in unroll(0, 4) {
+        wrap_token(token, @|x| { x + i });
     }
 
     let a = token();

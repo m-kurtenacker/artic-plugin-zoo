@@ -6,16 +6,15 @@
 
 using namespace thorin;
 
-void * static_memory (void * somedef1) {
-    Def* size = (Def *) somedef1;
+const Def* static_memory (World* world, const App* app) {
+    assert(app->num_args() == 3);
+    const Def* size = app->arg(1);
 
-    World& world = size->world();
-
-    Continuation* y = world.continuation(world.fn_type({
-                world.mem_type(),
-                world.fn_type({
-                        world.mem_type(),
-                        world.ptr_type(world.indefinite_array_type(world.type_pu8()))
+    Continuation* y = world->continuation(world->fn_type({
+                world->mem_type(),
+                world->fn_type({
+                        world->mem_type(),
+                        world->ptr_type(world->indefinite_array_type(world->type_pu8()))
                         })
                 }));
 
@@ -24,13 +23,13 @@ void * static_memory (void * somedef1) {
 
     if (auto size_lit = size->isa<PrimLit>()) {
         u64 size = size_lit->value().get_u64();
-        auto target_type = world.ptr_type(world.indefinite_array_type(world.type_pu8()));
-        const Def* inner_array = world.global(world.bottom(world.definite_array_type(world.type_pu8(), size)));
-        array = world.bitcast(target_type, inner_array);
+        auto target_type = world->ptr_type(world->indefinite_array_type(world->type_pu8()));
+        const Def* inner_array = world->global(world->bottom(world->definite_array_type(world->type_pu8(), size)));
+        array = world->bitcast(target_type, inner_array);
     } else {
-        const Def* inner_alloca = world.alloc(world.indefinite_array_type(world.type_pu8()), mem, size);
-        mem = world.extract(inner_alloca, (int) 0);
-        array = world.extract(inner_alloca, 1);
+        const Def* inner_alloca = world->alloc(world->indefinite_array_type(world->type_pu8()), mem, size);
+        mem = world->extract(inner_alloca, (int) 0);
+        array = world->extract(inner_alloca, 1);
     }
 
     array->dump();
@@ -40,21 +39,21 @@ void * static_memory (void * somedef1) {
     return y;
 }
 
-void * static_free (void * somedef1) {
-    Def* data = (Def *) somedef1;
-    World& world = data->world();
+const Def* static_free (World* world, const App* app) {
+    assert(app->num_args() == 3);
+    const Def* data = app->arg(1);
 
-    Continuation* y = world.continuation(world.fn_type({
-                world.mem_type(),
-                world.fn_type({
-                        world.mem_type()
+    Continuation* y = world->continuation(world->fn_type({
+                world->mem_type(),
+                world->fn_type({
+                        world->mem_type()
                         })
                 }));
 
     const Def* mem = y->param(0);
 
     if (data->isa<Extract>()) {
-        mem = world.release(mem, data);
+        mem = world->release(mem, data);
     }
 
     y->jump(y->param(1), {mem});
@@ -64,24 +63,12 @@ void * static_free (void * somedef1) {
 
 extern "C" {
 
-void * static_alloca (size_t input_c, void ** input_v) {
-    //input_v[0]: size : u64
-    //returns: memory buffer
-    //
-    //TODO: how is memory handled here?
-    
-    assert(input_c == 1);
-    return static_memory(input_v[0]);
+const Def* static_alloca (World* world, const App* app) {
+    return static_memory(world, app);
 }
 
-void * static_release (size_t input_c, void ** input_v) {
-    //input_v[0]: buffer : &mut [i8]
-    //returns: void
-    //
-    //TODO: how is memory handled here?
-    
-    assert(input_c == 1);
-    return static_free(input_v[0]);
+const Def* static_release (World* world, const App* app) {
+    return static_free(world, app);
 }
 
 }

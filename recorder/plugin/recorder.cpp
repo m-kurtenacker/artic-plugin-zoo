@@ -2,19 +2,21 @@
 
 using namespace thorin;
 
-void * generate_token_cpp (void * somedef1) {
+const Def* generate_token_cpp (World* world, App* app) {
     //Plain passthrough. Simply used to guard the contained lambda.
-    return somedef1;
+    assert(app->num_args() == 3);
+
+    return app->arg(1);
 }
 
-void * wrap_token_cpp (void * somedef1, void * somedef2) {
-    Def * token_def = (Def*) somedef1;
-    Def * apply_def = (Def*) somedef2;
+const Def* wrap_token_cpp (World* world, App* app) {
+    assert(app->num_args() == 4);
 
-    World& world = token_def->world();
+    const Def* token_def = app->arg(1);
+    const Def* apply_def = app->arg(2);
 
-    Param * token = token_def->as<Param>();
-    Continuation * apply = apply_def->as<Continuation>();
+    const Param * token = token_def->as<Param>();
+    const Continuation * apply = apply_def->as<Continuation>();
 
     //Find the original call to generate_token for the token that has been given.
     Continuation * return_continuation = token->continuation();
@@ -29,8 +31,8 @@ void * wrap_token_cpp (void * somedef1, void * somedef2) {
 
     //Build a new lambda that passes the result of the original token to the new wrapper.
     auto * original_lam = generate_token_call->arg(1);
-    Continuation * new_lam = world.continuation(world.fn_type({world.mem_type(), world.fn_type({world.mem_type(), world.type_qs32()})}));
-    Continuation * inter = world.continuation(world.fn_type({world.mem_type(), world.type_qs32()}));
+    Continuation * new_lam = world->continuation(world->fn_type({world->mem_type(), world->fn_type({world->mem_type(), world->type_qs32()})}));
+    Continuation * inter = world->continuation(world->fn_type({world->mem_type(), world->type_qs32()}));
     new_lam->jump(original_lam, {new_lam->param(0), inter});
     inter->jump(apply, {inter->param(0), inter->param(1), new_lam->param(1)});
 
@@ -44,17 +46,13 @@ void * wrap_token_cpp (void * somedef1, void * somedef2) {
 extern "C" {
 
 //#[import(cc = "plugin", name = "wrap_token")] fn wrap_token(_token: fn () -> i32, _expr: fn (i32) -> i32) -> ();
-void * wrap_token(size_t input_c, void ** input_v) {
-    assert(input_c == 2);
-
-    return wrap_token_cpp(input_v[0], input_v[1]);
+const Def* wrap_token(World* world, App* app) {
+    return wrap_token_cpp(world, app);
 }
 
 //#[import(cc = "plugin", name = "generate_token", depends = wrap_token)] fn generate_token(_expr: fn () -> i32) -> fn () -> i32;
-void * generate_token(size_t input_c, void ** input_v) {
-    assert(input_c == 1);
-
-    return generate_token_cpp(input_v[0]);
+const Def* generate_token(World* world, App* app) {
+    return generate_token_cpp(world, app);
 }
 
 }
