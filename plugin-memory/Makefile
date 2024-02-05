@@ -14,14 +14,6 @@ RUNTIME=${THORIN_RUNTIME_PATH}/artic/runtime.impala \
 	${THORIN_RUNTIME_PATH}/artic/intrinsics_math.impala \
 	${THORIN_RUNTIME_PATH}/artic/intrinsics.impala
 
-network.thorin.json: network.art sequential.art mat.art
-	artic \
-		${RUNTIME} \
-		$^ \
-		--emit-json \
-		--log-level info \
-		-o network
-
 main.thorin.json: main.art
 	artic \
 		${RUNTIME} \
@@ -42,9 +34,11 @@ main-memory.thorin.json: main.thorin.json plugin/build/memory.so
 		--log-level info \
 		-o main-memory
 
-main-memory.ll: main-memory.thorin.json
-	anyopt \
-		main-memory.thorin.json \
+main-memory.ll: main.art plugin/build/memory.so
+	artic \
+		${RUNTIME} \
+		main.art \
+		--plugin plugin/build/memory.so \
 		--emit-llvm \
 		--log-level info \
 		-o main-memory
