@@ -1,12 +1,17 @@
-.PHONY: all clean
+.PHONY: all clean clean-all
 all: memory
-
-plugin/build/memory.so: plugin/memory.cpp
-	@make -C plugin/build all
 
 clean:
 	rm -f *.ll *.thorin.json memory
+
+clean-all:
 	@make -C plugin/build clean
+
+plugin/build:
+	cd plugin; mkdir build; cd build; cmake ..
+
+plugin/build/memory.so: plugin/build plugin/memory.cpp
+	@make -C plugin/build all
 
 RUNTIME=${THORIN_RUNTIME_PATH}/artic/runtime.impala \
 	${THORIN_RUNTIME_PATH}/artic/intrinsics_thorin.impala \

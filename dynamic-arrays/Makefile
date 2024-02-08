@@ -7,7 +7,10 @@ clean:
 clean-all: clean
 	@make -C plugin/build clean
 
-plugin/build/dynamic_arrays.so: plugin/dynamic_arrays.cpp
+plugin/build:
+	cd plugin; mkdir build; cd build; cmake ..
+
+plugin/build/dynamic_arrays.so: plugin/build plugin/dynamic_arrays.cpp
 	@make -C plugin/build all
 
 RUNTIME=${THORIN_RUNTIME_PATH}/artic/runtime.impala \

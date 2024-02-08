@@ -2,14 +2,10 @@
 
 using namespace thorin;
 
-const Def* generate_token_cpp (World* world, App* app) {
-    //Plain passthrough. Simply used to guard the contained lambda.
-    assert(app->num_args() == 3);
+extern "C" {
 
-    return app->arg(1);
-}
-
-const Def* wrap_token_cpp (World* world, App* app) {
+//#[import(cc = "plugin", name = "wrap_token")] fn wrap_token(_token: fn () -> i32, _expr: fn (i32) -> i32) -> ();
+const Def* wrap_token(World* world, App* app) {
     assert(app->num_args() == 4);
 
     const Def* token_def = app->arg(1);
@@ -42,17 +38,12 @@ const Def* wrap_token_cpp (World* world, App* app) {
     return nullptr;
 }
 
-
-extern "C" {
-
-//#[import(cc = "plugin", name = "wrap_token")] fn wrap_token(_token: fn () -> i32, _expr: fn (i32) -> i32) -> ();
-const Def* wrap_token(World* world, App* app) {
-    return wrap_token_cpp(world, app);
-}
-
 //#[import(cc = "plugin", name = "generate_token", depends = wrap_token)] fn generate_token(_expr: fn () -> i32) -> fn () -> i32;
 const Def* generate_token(World* world, App* app) {
-    return generate_token_cpp(world, app);
+    //Plain passthrough. Simply used to guard the contained lambda.
+    assert(app->num_args() == 3);
+
+    return app->arg(1);
 }
 
 }

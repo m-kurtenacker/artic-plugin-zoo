@@ -7,7 +7,10 @@ clean:
 clean-all: clean
 	@make -C plugin/build clean
 
-plugin/build/recorder.so: plugin/recorder.cpp
+plugin/build:
+	cd plugin; mkdir build; cd build; cmake ..
+
+plugin/build/recorder.so: plugin/build plugin/recorder.cpp
 	@make -C plugin/build all
 
 RUNTIME=${THORIN_RUNTIME_PATH}/artic/runtime.impala \

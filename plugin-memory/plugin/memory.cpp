@@ -6,7 +6,9 @@
 
 using namespace thorin;
 
-const Def* static_memory (World* world, const App* app) {
+extern "C" {
+
+const Def* static_alloca (World* world, const App* app) {
     assert(app->num_args() == 3);
     const Def* size = app->arg(1);
 
@@ -39,7 +41,7 @@ const Def* static_memory (World* world, const App* app) {
     return y;
 }
 
-const Def* static_free (World* world, const App* app) {
+const Def* static_release (World* world, const App* app) {
     assert(app->num_args() == 3);
     const Def* data = app->arg(1);
 
@@ -59,16 +61,6 @@ const Def* static_free (World* world, const App* app) {
     y->jump(y->param(1), {mem});
 
     return y;
-}
-
-extern "C" {
-
-const Def* static_alloca (World* world, const App* app) {
-    return static_memory(world, app);
-}
-
-const Def* static_release (World* world, const App* app) {
-    return static_free(world, app);
 }
 
 }

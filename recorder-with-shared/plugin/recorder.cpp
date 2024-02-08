@@ -2,14 +2,10 @@
 
 using namespace thorin;
 
-const Def* generate_token_cpp (World* world, App* app) {
-    //Plain passthrough. Simply used to guard the contained lambda.
-    assert(app->num_args() == 3);
+extern "C" {
 
-    return app->arg(1);
-}
-
-const Def* wrap_token_cpp (World* world, App* app) {
+//#[import(cc = "plugin", name = "wrap_token")] fn wrap_token(_token: fn () -> i32, _expr: fn (i32) -> i32) -> ();
+const Def* wrap_token(World* world, App* app) {
     assert(app->num_args() == 4);
 
     const Def* token_def = app->arg(1);
@@ -42,33 +38,25 @@ const Def* wrap_token_cpp (World* world, App* app) {
     return nullptr;
 }
 
-const Def* with_shared(World* world, const App* app)
-    {
-        auto size = app->arg(1);
-        auto body = app->arg(2);
-        auto cont = app->arg(3);
-
-        auto invocation = world->continuation(world->fn_type({world->mem_type(), world->fn_type({world->mem_type()})}));
-        invocation->jump(body, {invocation->param(0), size, invocation->param(1)});
-
-        return invocation;
-    }
-
-
-extern "C" {
-
-//#[import(cc = "plugin", name = "wrap_token")] fn wrap_token(_token: fn () -> i32, _expr: fn (i32) -> i32) -> ();
-const Def* wrap_token(World* world, App* app) {
-    return wrap_token_cpp(world, app);
-}
-
 //#[import(cc = "plugin", name = "generate_token", depends = wrap_token)] fn generate_token(_expr: fn () -> i32) -> fn () -> i32;
 const Def* generate_token(World* world, App* app) {
-    return generate_token_cpp(world, app);
+    //Plain passthrough. Simply used to guard the contained lambda.
+    assert(app->num_args() == 3);
+
+    return app->arg(1);
 }
 
-const Def* with_shared_c(World* world, const App* app) {
-    return with_shared(world, app);
+const Def* with_shared(World* world, const App* app) {
+    assert(app->num_args() == 4);
+
+    auto size = app->arg(1);
+    auto body = app->arg(2);
+    auto cont = app->arg(3);
+
+    auto invocation = world->continuation(world->fn_type({world->mem_type(), world->fn_type({world->mem_type()})}));
+    invocation->jump(body, {invocation->param(0), size, invocation->param(1)});
+
+    return invocation;
 }
 
 }
