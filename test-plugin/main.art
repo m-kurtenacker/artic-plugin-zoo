@@ -6,8 +6,6 @@
 #[import(cc = "plugin", name = "test_inner")] fn test_inner(_: fn() -> ()) -> (fn() -> ());
 #[import(cc = "plugin", name = "test_outer", depends = test_inner)] fn test_outer(_: fn() -> ()) -> (fn() -> ());
 
-#[import(cc = "plugin", name = "test_pe")] fn test_pe(_: fn() -> ()) -> (fn() -> ());
-
 #[import(cc = "C", name = "print_f64")] fn print_f64(_: f64) -> ();
 
 #[export]
