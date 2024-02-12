@@ -1,0 +1,35 @@
+#[import(cc = "plugin", name = "cache_compute")] fn cache_compute(_f : fn(i32) -> i32) -> (fn(i32) -> i32);
+#[import(cc = "plugin", name = "clear_cache", depends=cache_compute)] fn clear_cache(_f : fn(i32) -> i32) -> (fn() -> ());
+
+static mut ops : i32;
+
+fn test(n: i32) -> i32 {
+    if (n == 0) {
+        1
+    } else {
+        ops += 1;
+        test(n - 1) * n
+    }
+}
+
+fn test_cached (n : i32) = cache_compute(test)(n);
+
+#[export]
+fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
+    ops = 0;
+
+    let a = test_cached(2);
+    let b = test_cached(4);
+
+    clear_cache(test_cached)();
+
+    let c = test_cached(4);
+
+    print_string("Result after ");
+    print_i32(ops);
+    print_string(" calcs: ");
+    print_i32(a + b + c);
+    print_string("\n");
+
+    0
+}
