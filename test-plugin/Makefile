@@ -8,9 +8,9 @@ clean-all: clean
 	@make -C test_plugin/build clean
 
 test_plugin/build:
-	cd plugin; mkdir build; cd build; cmake ..
+	cd test_plugin; mkdir build; cd build; cmake ..
 
-test_plugin/build/test.so: test_plugin/test.cpp
+test_plugin/build/test.so: test_plugin/build test_plugin/test.cpp
 	@make -C test_plugin/build
 
 main.thorin: main.art test_plugin/build/test.so

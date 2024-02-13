@@ -1,28 +1,33 @@
-#[import(cc="plugin", name="build_dynamic_array")] fn build_dynamic_array[T](_size: i64) -> (fn() -> &[T]);
+#[import(cc="plugin", name="build_dynamic_array")] fn build_dynamic_array[T](_size: i64) -> (fn() -> &mut [T]);
 
-fn test () -> &[i32] {
-    let mut a : [i32 * 3];
+fn @test (n : i32) -> &[i32] {
+    //let mut a : [i32 * n];
+    let a = build_dynamic_array[i32](n as i64)();
 
-    for i in unroll(0, 3) {
+    for i in unroll(0, n) {
         a(i) = i + 1;
     }
 
     a
 }
 
-#[import(cc="C", name="test_copy")] fn test_copy(n: i32, a: &[i32], m: i32, b: &[i32]) -> ();
-
+#[import(cc="C", name="test_copy")] fn test_copy(_n: i32, _a: &[i32], _m: i32, _b: &[i32]) -> ();
 
 #[export]
 fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
     let size = 6;
 
-    let a = test();
-    let b = build_dynamic_array[i32](size as i64)();
-
-    test_copy(3, a, size, b);
+    let a = test(size);
+    let b = test(size * 2);
 
     for i in range(0, size) {
+        print_i32(a(i));
+        print_string("\n");
+    }
+
+    print_string("\n");
+
+    for i in range(0, size * 2) {
         print_i32(b(i));
         print_string("\n");
 

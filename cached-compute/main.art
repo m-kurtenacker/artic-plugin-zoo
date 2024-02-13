@@ -3,32 +3,51 @@
 
 static mut ops : i32;
 
-fn test(n: i32) -> i32 {
+fn fac(n: i32) -> i32 {
     if (n == 0) {
         1
     } else {
         ops += 1;
-        test(n - 1) * n
+        fac(n - 1) * n
     }
 }
 
-fn test_cached (n : i32) = cache_compute(test)(n);
+fn fib(n: i32) -> i32 {
+    if (n == 0) {
+        1
+    } else if (n == 1) {
+        1
+    } else {
+        fib(n - 1) + fib(n - 2)
+    }
+}
+
+fn fac_cached (n : i32) = cache_compute(fac)(n);
+fn fib_cached (n : i32) = cache_compute(fib)(n);
 
 #[export]
 fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
     ops = 0;
 
-    let a = test_cached(2);
-    let b = test_cached(4);
+    let a = fac_cached(2);
+    let b = fac_cached(4);
 
-    clear_cache(test_cached)();
+    clear_cache(fac_cached)();
 
-    let c = test_cached(4);
+    let c = fac_cached(4);
 
     print_string("Result after ");
     print_i32(ops);
-    print_string(" calcs: ");
+    print_string(" operations: ");
     print_i32(a + b + c);
+    print_string("\n\n");
+
+    print_string("Fib 42 with cache:\n");
+    print_i32(fib_cached(42));
+    print_string("\n");
+
+    print_string("Fib 42 without cache:\n");
+    print_i32(fib(42));
     print_string("\n");
 
     0
