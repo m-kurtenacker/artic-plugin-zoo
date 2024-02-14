@@ -6,31 +6,34 @@
 #[import(cc = "plugin", name = "test_inner")] fn test_inner(_: fn() -> ()) -> (fn() -> ());
 #[import(cc = "plugin", name = "test_outer", depends = test_inner)] fn test_outer(_: fn() -> ()) -> (fn() -> ());
 
-#[import(cc = "C", name = "print_f64")] fn print_f64(_: f64) -> ();
+fn print(n : f64) -> () {
+    print_f64(n);
+    print_string("\n");
+}
 
 #[export]
 fn main () -> i32 {
     let mut a = 9.0;
 
-    test(@|| { print_f64(13); })();
+    test(@|| { print(13); })();
 
-    test_b(@|| { print_f64(13); }, 12.0)();
-    test_b(@|| { print_f64(27); }, 13.0)();
+    test_b(@|| { print(13); }, 12.0)();
+    test_b(@|| { print(27); }, 13.0)();
 
-    test_c(@|| { print_f64(27); })();
-    test_c(@|| { print_f64(27); })();
+    test_c(@|| { print(27); })();
+    test_c(@|| { print(27); })();
 
-    print_f64(27);
+    print(27);
 
     test(@|| { a = 23; })();
-    print_f64(a);
+    print(a);
 
-    print_f64(test_d(22)());
+    print(test_d(22)());
 
-    test_inner(@|| { print_f64(13); })();
-    test_outer(@|| { print_f64(13); })();
+    test_inner(@|| { print(13); })();
+    test_outer(@|| { print(13); })();
 
-    test_outer( test_inner(@|| { print_f64(13); }) )();
+    test_outer( test_inner(@|| { print(13); }) )();
 
     if a == 42 { 0 } else { 1 }
 }
