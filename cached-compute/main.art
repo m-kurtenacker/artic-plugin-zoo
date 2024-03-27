@@ -1,5 +1,5 @@
-#[import(cc = "plugin", name = "cache_compute")] fn cache_compute(_f : fn(i32) -> i32) -> (fn(i32) -> i32);
-#[import(cc = "plugin", name = "clear_cache", depends=cache_compute)] fn clear_cache(_f : fn(i32) -> i32) -> (fn() -> ());
+#[import(cc = "plugin", name = "cache_compute")] fn @cache_compute(_f : fn(i32) -> i32) -> (fn(i32) -> i32);
+#[import(cc = "plugin", name = "clear_cache", depends = cache_compute)] fn @clear_cache(_f : fn(i32) -> i32) -> (fn() -> ());
 
 static mut ops : i32;
 

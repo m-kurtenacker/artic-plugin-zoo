@@ -1,6 +1,6 @@
-#[import(cc = "plugin", name = "open_file")] fn open_file(_filename: &[u8]) -> u64;
-#[import(cc = "plugin", name = "emit_code", depends = open_file)] fn emit_code[T](_file: u64, _code : T) -> u64;
-#[import(cc = "plugin", name = "close_file", depends = emit_code[i32])] fn close_file(_file: u64) -> ();
+#[import(cc = "plugin", name = "open_file")] fn @open_file(_filename: &[u8]) -> u64;
+#[import(cc = "plugin", name = "emit_code")] fn @(?file) emit_code[T](file: u64, _code : T) -> u64;
+#[import(cc = "plugin", name = "close_file")] fn @(?file) close_file(file: u64) -> ();
 
 #[import(cc = "C", name = "test_2")] fn test_2 () -> i32;
 

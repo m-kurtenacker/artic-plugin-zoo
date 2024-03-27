@@ -1,5 +1,5 @@
-#[import(cc = "plugin", name = "wrap_token")] fn wrap_token(_token: fn() -> i32, _expr: fn (i32) -> i32) -> ();
-#[import(cc = "plugin", name = "generate_token", depends = wrap_token)] fn generate_token(_expr: fn () -> i32) -> fn () -> i32;
+#[import(cc = "plugin", name = "wrap_token")] fn @wrap_token(token: fn() -> i32, expr: fn (i32) -> i32) -> ();
+#[import(cc = "plugin", name = "generate_token", depends = wrap_token)] fn @generate_token(expr: fn () -> i32) -> fn () -> i32;
 
 #[export]
 fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {

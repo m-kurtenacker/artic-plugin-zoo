@@ -1,10 +1,10 @@
-#[import(cc = "plugin", name = "test")] fn test (_: fn () -> ()) -> (fn() -> ());
-#[import(cc = "plugin", name = "test_b")] fn test_b (_: fn () -> (), _: f64) -> (fn() -> ());
-#[import(cc = "plugin", name = "test_c")] fn test_c (_: fn () -> ()) -> (fn() -> ());
-#[import(cc = "plugin", name = "test_d")] fn test_d (_: f64) -> (fn() -> f64);
+#[import(cc = "plugin", name = "test")] fn @test (_: fn () -> ()) -> (fn() -> ());
+#[import(cc = "plugin", name = "test_b")] fn @test_b (_: fn () -> (), _: f64) -> (fn() -> ());
+#[import(cc = "plugin", name = "test_c")] fn @test_c (_: fn () -> ()) -> (fn() -> ());
+#[import(cc = "plugin", name = "test_d")] fn @test_d (_: f64) -> (fn() -> f64);
 
-#[import(cc = "plugin", name = "test_inner")] fn test_inner(_: fn() -> ()) -> (fn() -> ());
-#[import(cc = "plugin", name = "test_outer", depends = test_inner)] fn test_outer(_: fn() -> ()) -> (fn() -> ());
+#[import(cc = "plugin", name = "test_inner")] fn @test_inner(_: fn() -> ()) -> (fn() -> ());
+#[import(cc = "plugin", name = "test_outer", depends = test_inner)] fn @test_outer(_: fn() -> ()) -> (fn() -> ());
 
 fn print(n : f64) -> () {
     print_f64(n);
