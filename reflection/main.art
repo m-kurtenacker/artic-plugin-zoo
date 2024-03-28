@@ -1,0 +1,24 @@
+#[import(cc = "plugin", name = "serialize")] fn serialize[T]() -> (fn(T) -> &mut[u8]);
+#[import(cc = "plugin", name = "deserialize")] fn deserialize[T]() -> (fn(&mut [u8]) -> T);
+
+struct S {
+    a : i32,
+    b : f32
+}
+
+fn ser_S(s : S) = serialize[S]()(s);
+
+#[export]
+fn main () -> i32 {
+    let s = S {
+        a = 4,
+        b = 3.2
+    };
+
+    let b = ser_S(s);
+
+    print_string(b);
+    print_string("\n");
+
+    0
+}

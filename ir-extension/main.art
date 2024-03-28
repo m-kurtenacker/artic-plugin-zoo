@@ -41,5 +41,7 @@ fn main (_argc : i32, argv : &[&[u8]]) -> i32 {
         n_data(i) = n(i) as i32 - 48;
     }
 
-    test(m_data, n_data)
+    print_i32(test(m_data, n_data));
+    print_string("\n");
+    0
 }

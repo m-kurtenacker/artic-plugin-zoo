@@ -24,5 +24,6 @@ fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
 
     close_file(i);
 
-    test_2()
+    print_i32(test_2());
+    0
 }
