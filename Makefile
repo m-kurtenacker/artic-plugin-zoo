@@ -1,4 +1,4 @@
-SUBDIRS = cached-compute dynamic-arrays extern_language ir-extension plugin-memory recorder reflection test-plugin vector-ops
+SUBDIRS = cached-compute cuda_reductions dynamic-arrays extern_language ir-extension plugin-memory recorder reflection test-plugin vector-ops
 
 .PHONY: all $(SUBDIRS) clean
 all: $(SUBDIRS)

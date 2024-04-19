@@ -1,0 +1,72 @@
+#[import(cc="plugin", name="nvvm_add_atomic_or_red_global")] fn nvvm_add_atomic_or_red_global(_addr: &mut addrspace(1)i32, _val: i32) -> fn() -> i32;
+
+#[intern] fn private_nvvm_reduce_add_global(addr: &mut addrspace(1)i32, val: i32) = nvvm_reduce_add_global_i32(addr, val);
+#[intern] fn private_nvvm_atomic_add_global(addr: &mut addrspace(1)i32, val: i32) = nvvm_atomic_add_global_i32(addr, val);
+
+#[export]
+fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
+    //let local_accel = cuda_accelerator(0);
+    let local_accel = nvvm_accelerator(0);
+
+    let cpu_buffer = alloc_cpu(sizeof[i32]() * 24);
+    let i = bitcast[&mut [i32]](cpu_buffer.data);
+    for n in range(0, 24) {
+        i(n) = n;
+    }
+
+    let cuda_buffer = local_accel.alloc(sizeof[i32]() * 24);
+    copy(cpu_buffer, cuda_buffer);
+
+    let build_test = false;
+
+    for work_item in local_accel.exec((24, 1, 1), (8, 1, 1)) {
+        let array = bitcast[&mut addrspace(1)[i32]](cuda_buffer.data);
+
+        let val = array(work_item.gidx());
+
+        local_accel.barrier();
+
+        let a = nvvm_add_atomic_or_red_global(&mut array(work_item.bidx() * work_item.bdimx()), val)();
+
+        if (build_test) {
+            local_accel.barrier();
+
+            if work_item.tidx() == 0 {
+                array(work_item.gidx() + 1) = 1000 + a;
+            }
+        }
+
+        local_accel.barrier();
+
+        let val2 = array(work_item.gidx());
+
+        local_accel.barrier();
+
+        nvvm_add_atomic_or_red_global(&mut array(work_item.bidx() * work_item.bdimx()), val2)();
+    }
+
+    copy(cuda_buffer, cpu_buffer);
+
+    for x in range(0, 24) {
+            print_i32(i(x));
+            print_string("\n");
+    }
+    /*print_string("import matplotlib.pyplot as plt\nimport numpy as np\n\n");
+    print_string("a = np.zeros([24, 24])\n\n#Your data here!\n");
+
+    for x in range(0, 24) {
+        for y in range(0, 24) {
+            print_string("a[");
+            print_i32(x);
+            print_string(",");
+            print_i32(y);
+            print_string("] = ");
+            print_i32(i(x * 24 + y));
+            print_string("\n");
+        }
+    }
+
+    print_string("\n# plot\nfig, ax = plt.subplots()\n\nax.imshow(a)\nplt.show()\n");*/
+
+    0
+}
