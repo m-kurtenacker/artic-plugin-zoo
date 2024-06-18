@@ -51,22 +51,6 @@ fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
             print_i32(i(x));
             print_string("\n");
     }
-    /*print_string("import matplotlib.pyplot as plt\nimport numpy as np\n\n");
-    print_string("a = np.zeros([24, 24])\n\n#Your data here!\n");
-
-    for x in range(0, 24) {
-        for y in range(0, 24) {
-            print_string("a[");
-            print_i32(x);
-            print_string(",");
-            print_i32(y);
-            print_string("] = ");
-            print_i32(i(x * 24 + y));
-            print_string("\n");
-        }
-    }
-
-    print_string("\n# plot\nfig, ax = plt.subplots()\n\nax.imshow(a)\nplt.show()\n");*/
 
     0
 }

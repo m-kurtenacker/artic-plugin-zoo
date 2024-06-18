@@ -1,0 +1,30 @@
+#[import(cc="plugin", name="select_option")] fn select_option(_o1 : fn(i32) -> i32, _o2 : fn(i32) -> i32, _val : i32) -> fn() -> i32;
+
+fn option_1 (val : i32) -> i32 {
+    print_string("option 1 : ");
+    print_i32(val);
+    print_string("\n");
+
+    42
+}
+
+fn option_2 (val : i32) -> i32 {
+    print_string("option 2 : ");
+    print_i32(val);
+    print_string("\n");
+
+    666 //This value should be ignored in the end.
+}
+
+#[export]
+fn main (argc : i32, _argv : &[&[u8]]) -> i32 {
+    let a = select_option(option_1, option_2, argc)();
+
+    print_string("result 1 : ");
+    print_i32(a);
+    print_string("\n");
+
+    let b = select_option(option_1, option_2, argc)();
+
+    0
+}
