@@ -1,0 +1,52 @@
+#[import(cc = "plugin")] fn @with_shared(_size : i64, _current_offset : i64, _body : fn(i64) -> ()) -> (fn() -> ());
+
+fn @shared[T](body: fn(i64) -> ()) {
+    @|n:i64| {
+        with_shared(n * sizeof[T](), 0, body)();
+    }
+}
+
+fn @print_i64_cuda(n : i64, i : i64) {
+    let mut tmp : [i64 * 3];
+    tmp(0) = n;
+    tmp(1) = cuda_threadIdx_x() as i64;
+    tmp(2) = i;
+    cuda_vprintf("offset %lld t %lld: %lld\n", &tmp as &[u8]);
+}
+
+#[export]
+fn main (_argc : i32, _argv : &[&[u8]]) -> () {
+    let n = 8;
+
+    cuda(0, (n, 1, 1), (n, 1, 1), || {
+            for offset in shared[i32](n as i64) {
+                print_i64_cuda(0, offset);
+
+                for offset in shared[i32](2) {
+                    print_i64_cuda(1, offset);
+
+                    if cuda_threadIdx_x() % 2 == 0 {
+                        for offset in shared[i32](3) {
+                            print_i64_cuda(2, offset);
+                        }
+                    } else {
+                        for offset in shared[i32](3) {
+                            print_i64_cuda(3, offset);
+                        }
+                    }
+
+                    print_i64_cuda(4, offset);
+                }
+
+                for offset in shared[i32](4) {
+                    print_i64_cuda(5, offset);
+                }
+
+                print_i64_cuda(6, offset);
+            }
+
+            for offset in shared[i32](5) {
+                print_i64_cuda(7, offset);
+            }
+    });
+}
