@@ -1,4 +1,7 @@
+//The current_offset parameter is used by the plugin as an accumulator. Initalize with 0.
+
 #[import(cc = "plugin")] fn @with_shared(_size : i64, _current_offset : i64, _body : fn(i64) -> ()) -> (fn() -> ());
+#[import(cc = "plugin")] fn @get_max_offset(_body: fn(i64) -> ()) -> (fn(/*current_offset*/ i64) -> ());
 
 fn @shared[T](body: fn(i64) -> ()) {
     @|n:i64| {
@@ -19,6 +22,9 @@ fn main (_argc : i32, _argv : &[&[u8]]) -> () {
     let n = 8;
 
     cuda(0, (n, 1, 1), (n, 1, 1), || {
+        for r in get_max_offset(0) {
+            print_i64_cuda(-1, r);
+
             for offset in shared[i32](n as i64) {
                 print_i64_cuda(0, offset);
 
@@ -48,5 +54,6 @@ fn main (_argc : i32, _argv : &[&[u8]]) -> () {
             for offset in shared[i32](5) {
                 print_i64_cuda(7, offset);
             }
+        }
     });
 }
