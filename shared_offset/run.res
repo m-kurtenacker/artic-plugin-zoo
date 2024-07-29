@@ -1,11 +1,4 @@
-offset -1 t 0: 52
-offset -1 t 1: 52
-offset -1 t 2: 52
-offset -1 t 3: 52
-offset -1 t 4: 52
-offset -1 t 5: 52
-offset -1 t 6: 52
-offset -1 t 7: 52
+Max offset: 52
 offset 0 t 0: 0
 offset 0 t 1: 0
 offset 0 t 2: 0

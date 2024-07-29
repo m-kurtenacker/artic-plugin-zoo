@@ -16,7 +16,6 @@ extern "C" {
 const Def* get_max_offset (World* world, const App* app) {
     assert(app->num_args() == 3);
 
-    //const Def* offset = app->arg(1);
     const Def* body = app->arg(1);
     const Def* target = app->arg(2);
 
@@ -27,7 +26,6 @@ const Def* get_max_offset (World* world, const App* app) {
             break;
         }
     }
-
     if (!with_shared_continuation) {
         auto offset_arg = target->as<Continuation>()->body()->arg(1);
 
@@ -35,15 +33,40 @@ const Def* get_max_offset (World* world, const App* app) {
         y->jump(body, {y->param(0), offset_arg, y->param(2)});
         return y;
     } else {
-        Scope body_scope = Scope(const_cast<Continuation*>(body->as<Continuation>()));
-
         App* target_app = const_cast<App*>(target->as<Continuation>()->body());
         auto offset_arg = target_app->arg(1);
 
+        const Def* cuda_continuation = nullptr;
+        for (auto cont : world->copy_continuations()) {
+            if (cont->name() == "cuda") {
+                cuda_continuation = cont;
+                break;
+            }
+        }
+        assert(cuda_continuation);
+
+        //Find direct with_shared children.
+        Scope body_scope = Scope(const_cast<Continuation*>(body->as<Continuation>()));
         for (auto use : with_shared_continuation->uses()) {
             if (body_scope.contains(use)) {
                 if (auto child_app = use->isa<App>()) {
                     offset_arg = max(world, world->arithop_add(child_app->op(2), child_app->op(3)), offset_arg);
+                }
+            }
+        }
+
+        //Cuda bodies are not part of this scope, analyze them explicitly.
+        for (auto use : cuda_continuation->uses()) {
+            if (body_scope.contains(use)) {
+                auto cuda_body = use->isa<App>()->op(5);
+                Scope cuda_body_scope = Scope(const_cast<Continuation*>(cuda_body->as<Continuation>()));
+
+                for (auto use : with_shared_continuation->uses()) {
+                    if (cuda_body_scope.contains(use)) {
+                        if (auto child_app = use->isa<App>()) {
+                            offset_arg = max(world, world->arithop_add(child_app->op(2), child_app->op(3)), offset_arg);
+                        }
+                    }
                 }
             }
         }

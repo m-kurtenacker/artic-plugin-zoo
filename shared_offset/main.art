@@ -21,9 +21,13 @@ fn @print_i64_cuda(n : i64, i : i64) {
 fn main (_argc : i32, _argv : &[&[u8]]) -> () {
     let n = 8;
 
-    cuda(0, (n, 1, 1), (n, 1, 1), || {
-        for r in get_max_offset(0) {
-            print_i64_cuda(-1, r);
+    for r in get_max_offset(0) {
+        print_string("Max offset: ");
+        print_i64(r);
+        print_string("\n");
+
+        cuda(0, (n, 1, 1), (n, 1, 1), || {
+            //print_i64_cuda(-1, r);
 
             for offset in shared[i32](n as i64) {
                 print_i64_cuda(0, offset);
@@ -54,6 +58,6 @@ fn main (_argc : i32, _argv : &[&[u8]]) -> () {
             for offset in shared[i32](5) {
                 print_i64_cuda(7, offset);
             }
-        }
-    });
+        });
+    }
 }
