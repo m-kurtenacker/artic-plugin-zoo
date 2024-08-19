@@ -1,0 +1,86 @@
+#[import(cc = "C", name = "get_from_cache")] fn get_from_cache(_key : i32, _cache: &&[i8]) -> i32;
+#[import(cc = "C", name = "update_cache")] fn update_cache(_key : i32, _value: i32, _cache: &&[i8]) -> ();
+#[import(cc = "C", name = "clear_cache")] fn clear_cache(_cache: &&[i8]) -> ();
+
+static mut ops : i32;
+
+static mut fac_cache: &[i8];
+static mut fib_cache: &[i8];
+
+fn fac_int(n: i32, cache: bool) -> i32 {
+    if cache {
+        let cached_result = get_from_cache(n, &fac_cache);
+        if cached_result != 0 {
+            return (cached_result)
+        }
+    }
+
+    let r = if (n == 0) {
+        1
+    } else {
+        ops += 1;
+        fac_int(n - 1, cache) * n
+    };
+
+    if cache { update_cache (n, r, &fac_cache); }
+
+    r
+}
+
+fn fib_int(n: i32, cache: bool) -> i32 {
+    if cache {
+        let cached_result = get_from_cache(n, &fib_cache);
+        if cached_result != 0 {
+            return (cached_result)
+        }
+    }
+
+    let r = if (n == 0) {
+        1
+    } else if (n == 1) {
+        1
+    } else {
+        fib_int(n - 1, cache) + fib_int(n - 2, cache)
+    };
+
+    if cache { update_cache (n, r, &fib_cache); }
+
+    r
+}
+
+fn @fac (n : i32) = fac_int(n, false);
+fn @fib (n : i32) = fib_int(n, false);
+
+fn @fac_cached (n : i32) = fac_int(n, true);
+fn @fib_cached (n : i32) = fib_int(n, true);
+
+#[export]
+fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
+    fac_cache = bitcast[&[i8]](0);
+    fib_cache = bitcast[&[i8]](0);
+
+    ops = 0;
+
+    let a = fac_cached(2);
+    let b = fac_cached(4);
+
+    clear_cache(&fac_cache);
+
+    let c = fac_cached(4);
+
+    print_string("Result after ");
+    print_i32(ops);
+    print_string(" operations: ");
+    print_i32(a + b + c);
+    print_string("\n\n");
+
+    print_string("Fib 42 with cache:\n");
+    print_i32(fib_cached(42));
+    print_string("\n");
+
+    print_string("Fib 42 without cache:\n");
+    print_i32(fib(42));
+    print_string("\n");
+
+    0
+}
