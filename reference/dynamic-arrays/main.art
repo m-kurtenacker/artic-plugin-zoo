@@ -1,0 +1,39 @@
+fn @test (n : i32, a : &mut[i32]) -> &[i32] {
+    for i in unroll(0, n) {
+        a(i) = i + 1;
+    }
+
+    a
+}
+
+#[export]
+fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
+    let size = 6;
+
+    let test_array_1_buffer = alloc_cpu(sizeof[i32]() * size as i64);
+    let test_array_2_buffer = alloc_cpu(sizeof[i32]() * size as i64 * 2 as i64);
+
+    let test_array_1 = bitcast[&mut[i32]](test_array_1_buffer.data);
+    let test_array_2 = bitcast[&mut[i32]](test_array_2_buffer.data);
+
+    let a = test(size, test_array_1);
+    let b = test(size * 2, test_array_2);
+
+    for i in range(0, size) {
+        print_i32(a(i));
+        print_string("\n");
+    }
+
+    print_string("\n");
+
+    for i in range(0, size * 2) {
+        print_i32(b(i));
+        print_string("\n");
+
+    }
+
+    release(test_array_1_buffer);
+    release(test_array_2_buffer);
+
+    0
+}

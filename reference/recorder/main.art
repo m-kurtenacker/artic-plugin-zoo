@@ -1,0 +1,18 @@
+fn @wrap_token(token: &mut(fn() -> i32), expr: fn (i32) -> i32) -> () {
+    let old_res = (*token)();
+    let new_fun = @|| { expr(old_res) };
+    *token = new_fun;
+}
+fn @generate_token(expr: fn () -> i32) -> (fn() -> i32) { expr }
+
+#[export]
+fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
+    let mut token = generate_token(|| { 0 });
+
+    for i in unroll(0, 4) {
+        wrap_token(&mut token, @|x| { x + i });
+    }
+
+    let a = token();
+    a
+}

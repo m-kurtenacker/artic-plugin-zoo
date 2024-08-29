@@ -1,0 +1,50 @@
+fn print(n : f64) -> () {
+    print_f64(n);
+    print_string("\n");
+}
+
+fn @test (r : &mut f64, body: fn() -> ()) -> (fn() -> ()) = @|| { *r = 42; @body(); };
+fn @test_b (r : &mut f64, body: fn() -> (), k : f64) -> (fn() -> ()) = @|| { *r = k; @body(); };
+
+static mut num_replacements : i32;
+fn @test_c (r : &mut f64, body: fn() -> ()) -> (fn() -> ()) = @|| { *r = num_replacements as f64; num_replacements += 1; @body(); };
+
+fn @test_d (k : f64) -> (fn() -> f64) = @|| { k + 1.0 };
+
+fn @test_inner (r : &mut f64, body: fn() -> ()) -> (fn() -> ()) = @|| { *r = 24; @body(); };
+fn @dropin_id (_r : &mut f64, body: fn() -> ()) -> (fn() -> ()) = @|| { @body(); };
+fn @test_outer (r : &mut f64, test_inner_p : &mut (fn(&mut f64, fn() -> ()) -> (fn() -> ())), body: fn() -> ()) -> (fn() -> ()) = @|| { *r = 42; *test_inner_p = dropin_id; @body(); };
+
+#[export]
+fn main () -> i32 {
+    num_replacements = 0;
+
+    let mut a = 9.0;
+
+    let mut r = 13 as f64;
+    test(&mut r, @|| { print(r); })();
+
+    test_b(&mut r, @|| { print(r); }, 12.0)();
+    test_b(&mut r, @|| { print(r); }, 13.0)();
+
+    test_c(&mut r, @|| { print(r); })();
+    test_c(&mut r, @|| { print(r); })();
+
+    print(27);
+
+    r = 23;
+    test(&mut r, @|| { a = r; })();
+
+    print(a);
+
+    print(test_d(22)());
+
+    let mut test_inner_ref = test_inner;
+    test_inner(&mut r, @|| { print(r); })();
+    test_outer(&mut r, &mut test_inner_ref, @|| { print(r); })();
+
+    test_inner_ref = test_inner;
+    test_outer(&mut r, &mut test_inner_ref, @|| { test_inner_ref(&mut r, @|| { print(r); })() } )();
+
+    if a == 42 { 0 } else { 1 }
+}

@@ -1,5 +1,5 @@
 #SUBDIRS = cached-compute cuda_reductions dynamic-arrays extern_language ir-extension plugin-memory recorder reflection test-plugin shared_offset merge_sort select_on_user
-SUBDIRS = cached-compute dynamic-arrays extern_language ir-extension plugin-memory recorder test-plugin shared_offset merge_sort
+SUBDIRS = cached-compute dynamic-arrays plugin-memory recorder test-plugin shared_offset merge_sort
 
 .PHONY: all $(SUBDIRS) clean
 all: $(SUBDIRS)
