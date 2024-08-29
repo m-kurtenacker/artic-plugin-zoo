@@ -58,7 +58,7 @@ const Def* get_max_offset (World* world, const App* app) {
         //Cuda bodies are not part of this scope, analyze them explicitly.
         for (auto use : cuda_continuation->uses()) {
             if (body_scope.contains(use)) {
-                auto cuda_body = use->isa<App>()->op(5);
+                auto cuda_body = use->isa<App>()->op(6);
                 Scope cuda_body_scope = Scope(const_cast<Continuation*>(cuda_body->as<Continuation>()));
 
                 for (auto use : with_shared_continuation->uses()) {

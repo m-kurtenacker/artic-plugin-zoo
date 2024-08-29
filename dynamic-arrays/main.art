@@ -11,8 +11,6 @@ fn @test (n : i32) -> &[i32] {
     a
 }
 
-#[import(cc="C", name="test_copy")] fn test_copy(_n: i32, _a: &[i32], _m: i32, _b: &[i32]) -> ();
-
 #[export]
 fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
     let size = 6;

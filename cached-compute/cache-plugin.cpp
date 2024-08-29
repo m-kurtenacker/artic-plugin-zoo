@@ -11,21 +11,14 @@ using namespace thorin;
 class CacheContinuation : public Continuation {
 public:
     CacheContinuation(World& world, const FnType* type, const Attributes& attributes, Debug dbg, const Def* caching_object) : Continuation(world, type, attributes, dbg), caching_object(caching_object) {}
-    virtual ~CacheContinuation() { for (auto param : params()) delete param; }
-
     Continuation* stub(Rewriter& rewriter, const Type* nty) const override {
-        assert(!dead_);
         auto& nworld = rewriter.dst();
         auto npi = nty->isa<FnType>();
-        assert(npi && npi->tag() == Node_FnType);
 
         auto new_caching_object = rewriter.instantiate(caching_object);
 
         CacheContinuation* ncontinuation = new CacheContinuation(nworld, npi, attributes(), debug(), new_caching_object);
         nworld.data_.defs_.emplace(ncontinuation);
-
-        assert(&ncontinuation->world() == &nworld);
-        assert(&npi->world() == &nworld);
 
         return ncontinuation;
     }
@@ -36,8 +29,6 @@ public:
 extern "C" {
 
 const Def* clear_cache(World* world, const App* app) {
-    assert(app->num_args() == 3);
-
     auto caching_continuation = app->arg(1)->as<CacheContinuation>();
     const Def* caching_object = caching_continuation->caching_object;
 
@@ -63,13 +54,9 @@ const Def* clear_cache(World* world, const App* app) {
 }
 
 const Def* cache_compute(World* world, const App* app) {
-    assert(app->num_args() == 3);
-
     Continuation* function = const_cast<Continuation*>(app->arg(1)->as<Continuation>());
-    //function->type = fn_type(mem_type, n: i32, ret: fn_type(mem_type, i32))
 
     const Def* lifted = lift(Scope(function), function, {function});
-    //lifted->type = fn_type(mem_type, n: i32, ret: fn_type(mem_type, i32), fn_type(mem_type, n: i32, ret: fn_type(mem_type, i32)))
 
     //Allocate a new caching map into a global:
     const Def* caching_object = world->global(
