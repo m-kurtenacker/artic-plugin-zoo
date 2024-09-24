@@ -17,7 +17,7 @@ fn main (_argc : i32, _argv : &[&[u8]]) -> i32 {
     let cuda_buffer = local_accel.alloc(sizeof[i32]() * 24);
     copy(cpu_buffer, cuda_buffer);
 
-    let build_test = false;
+    let build_test = true;
 
     for work_item in local_accel.exec((24, 1, 1), (8, 1, 1)) {
         let array = bitcast[&mut addrspace(1)[i32]](cuda_buffer.data);

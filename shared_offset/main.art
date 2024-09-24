@@ -29,7 +29,7 @@ fn main (_argc : i32, _argv : &[&[u8]]) -> () {
         cuda_with_lmem(0, (n, 1, 1), (n, 1, 1), r as i32, || {
             //print_i64_cuda(-1, r);
 
-            let local_mem_array = local_memory();
+            let local_mem_array = local_memory_base();
 
             for offset in shared[i32](n as i64) {
                 print_i64_cuda(0, offset);
