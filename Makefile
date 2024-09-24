@@ -22,8 +22,8 @@ test: $(SUBDIRS:=.test)
 %.complexity: %/main.art
 	artic --log-level info --halstead $<
 	artic --log-level info --cyclomatic $<
-	cat $< | sed '/^\s*$$/d' | wc -l
-	echo "$* `artic --halstead $<` `artic --cyclomatic $<` `cat $< | sed '/^\s*$$/d' | wc -l`" >> complexity.txt
+	cat $< | sed '/^\s*$$/d' | sed '/^\s*\/\//d' | wc -l
+	echo "$* `artic --halstead $<` `artic --cyclomatic $<` `cat $< | sed '/^\s*$$/d' | sed '/^\s*\/\//d' | wc -l`" >> complexity.txt
 
 complexity: complexity.txt $(SUBDIRS:=.complexity)
 
